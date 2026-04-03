@@ -4,7 +4,7 @@ const OBSTACLE_DEFS = {
   platform: { width: 96, height: 16, hp: Infinity },
 };
 
-const GROUND_Y = 500;
+const GROUND_Y = 620;
 
 export class ArenaGenerator {
   static generate(arenaWidth) {

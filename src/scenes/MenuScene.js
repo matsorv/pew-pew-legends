@@ -7,7 +7,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create() {
-    const centerX = 400;
+    const centerX = 640;
 
     // Title
     this.add.text(centerX, 150, 'PEW PEW LEGENDS', {
@@ -54,7 +54,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Controls hint
     this.add.text(centerX, 550, 'P1: WASD + Shift/Ctrl + Q/E  |  P2: Arrows + Shift/Ctrl + ,/.', {
-      fontSize: '11px',
+      fontSize: '14px',
       fill: '#555555',
       fontFamily: 'monospace',
     }).setOrigin(0.5);

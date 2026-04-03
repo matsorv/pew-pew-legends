@@ -25,26 +25,26 @@ export class HUD {
     }).setScrollFactor(0).setDepth(100);
 
     // P2 HUD (top right)
-    this.p2Name = scene.add.text(785, 10, 'PLAYER 2', {
+    this.p2Name = scene.add.text(1265, 10, 'PLAYER 2', {
       fontSize: '14px',
       fill: '#ef5350',
       fontFamily: 'monospace',
       fontStyle: 'bold',
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
 
-    this.p2HealthBg = scene.add.rectangle(665, 32, 120, 10, 0x333333)
+    this.p2HealthBg = scene.add.rectangle(1145, 32, 120, 10, 0x333333)
       .setOrigin(0, 0).setScrollFactor(0).setDepth(100);
-    this.p2HealthFill = scene.add.rectangle(665, 32, 120, 10, 0xf44336)
+    this.p2HealthFill = scene.add.rectangle(1145, 32, 120, 10, 0xf44336)
       .setOrigin(0, 0).setScrollFactor(0).setDepth(100);
 
-    this.p2Weapon = scene.add.text(785, 48, '', {
+    this.p2Weapon = scene.add.text(1265, 48, '', {
       fontSize: '11px',
       fill: '#ff9800',
       fontFamily: 'monospace',
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
 
     // Round info (top center)
-    this.roundText = scene.add.text(400, 10, '', {
+    this.roundText = scene.add.text(640, 10, '', {
       fontSize: '14px',
       fill: '#888888',
       fontFamily: 'monospace',

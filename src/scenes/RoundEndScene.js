@@ -14,7 +14,7 @@ export class RoundEndScene extends Phaser.Scene {
   }
 
   create() {
-    const centerX = 400;
+    const centerX = 640;
     const winnerColor = this.roundWinner === 1 ? '#4fc3f7' : '#ef5350';
 
     this.add.text(centerX, 200, `Player ${this.roundWinner} wins the round!`, {
