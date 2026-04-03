@@ -20,10 +20,12 @@ export class GameScene extends Phaser.Scene {
 
   init(data) {
     this.bestOf = data.bestOf || 3;
+    this.existingGameState = data.gameState || null;
   }
 
   create() {
-    this.gameState = new GameState(this.bestOf);
+    this.gameState = this.existingGameState || new GameState(this.bestOf);
+    this.existingGameState = null;
 
     this.cameras.main.setBackgroundColor('#0f0f23');
 
