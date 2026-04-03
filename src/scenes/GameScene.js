@@ -178,7 +178,7 @@ export class GameScene extends Phaser.Scene {
       this.player1.x, this.player1.y,
       this.player2.x, this.player2.y
     );
-    const zoom = Phaser.Math.Clamp(1280 / Math.max(dist, 600), 0.5, 1.2);
+    const zoom = Phaser.Math.Clamp(1280 / Math.max(dist, 600), 0.5, 1.0);
     this.cameras.main.setZoom(Phaser.Math.Linear(this.cameras.main.zoom, zoom, 0.05));
 
     // Update HUD
