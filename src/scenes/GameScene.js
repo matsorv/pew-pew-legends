@@ -5,6 +5,8 @@ import { ArenaGenerator } from '../state/ArenaGenerator.js';
 import { Obstacle } from '../entities/Obstacle.js';
 import { Player } from '../entities/Player.js';
 import { KEY_LOCATION } from '../config/controls.js';
+import { Bullet } from '../entities/Bullet.js';
+import { WEAPONS } from '../config/weapons.js';
 
 const ARENA_WIDTH = 2400;
 const ARENA_HEIGHT = 600;
@@ -115,6 +117,12 @@ export class GameScene extends Phaser.Scene {
     this.p2Keys.weaponPrev.on('down', () => this.gameState.player2.switchWeapon(-1));
     this.p2Keys.weaponNext.on('down', () => this.gameState.player2.switchWeapon(1));
 
+    // Bullet group
+    this.bullets = this.add.group();
+
+    // Track last fire time per player
+    this.lastFireTime = { 1: 0, 2: 0 };
+
     // Prevent browser default for game keys
     this.input.keyboard.addCapture(['W','A','S','D','Q','E','UP','DOWN','LEFT','RIGHT','SHIFT','CTRL','COMMA','PERIOD','ENTER']);
   }
@@ -134,9 +142,106 @@ export class GameScene extends Phaser.Scene {
     this.player1.updateVisuals();
     this.player2.updateVisuals();
 
+    // Shooting
+    this.handleShooting(this.player1, this.p1Keys, time);
+    this.handleShooting(this.player2, this.p2Keys, time);
+
+    // Bullet vs player collisions
+    this.physics.overlap(this.bullets, this.player1, (bullet, player) => {
+      if (bullet.shooterId === player.playerState.id) return;
+      this.hitPlayer(bullet, player);
+    });
+    this.physics.overlap(this.bullets, this.player2, (bullet, player) => {
+      if (bullet.shooterId === player.playerState.id) return;
+      this.hitPlayer(bullet, player);
+    });
+
+    // Bullet vs obstacle collisions
+    this.physics.overlap(this.bullets, this.obstacleGroup, (bullet, obstacle) => {
+      const damage = WEAPONS[bullet.weaponKey].damage;
+      if (obstacle.takeDamage) obstacle.takeDamage(damage);
+      bullet.destroy();
+    });
+
     // Camera follows midpoint between players
     const midX = (this.player1.x + this.player2.x) / 2;
     const midY = (this.player1.y + this.player2.y) / 2;
     this.cameras.main.centerOn(midX, midY);
+  }
+
+  handleShooting(playerEntity, keys, time) {
+    const state = playerEntity.playerState;
+    const weapon = WEAPONS[state.currentWeapon];
+    const canFire = time - state.lastFireTime >= weapon.fireRate;
+
+    if (keys.shoot.isDown && canFire) {
+      state.lastFireTime = time;
+      const spawnX = playerEntity.x + playerEntity.facing * 16;
+      const spawnY = playerEntity.y - 8;
+
+      if (weapon.chargeDelay > 0) {
+        // Sniper has charge delay
+        this.time.delayedCall(weapon.chargeDelay, () => {
+          if (playerEntity.active) {
+            this.spawnBullet(spawnX, spawnY, state.aimAngle, playerEntity.facing, state.currentWeapon, state.id);
+          }
+        });
+      } else {
+        this.spawnBullet(spawnX, spawnY, state.aimAngle, playerEntity.facing, state.currentWeapon, state.id);
+      }
+    }
+  }
+
+  spawnBullet(x, y, angle, facing, weaponKey, shooterId) {
+    const bullet = new Bullet(this, x, y, angle, facing, weaponKey, shooterId);
+    this.bullets.add(bullet);
+  }
+
+  hitPlayer(bullet, playerEntity) {
+    const state = playerEntity.playerState;
+
+    // Headshot detection: upper 25% of sprite
+    const headThreshold = playerEntity.y - playerEntity.height * 0.25;
+    const isHeadshot = bullet.y < headThreshold;
+
+    const damage = bullet.getDamage(isHeadshot);
+    state.takeDamage(damage, isHeadshot);
+    bullet.destroy();
+
+    // Flash player on hit
+    playerEntity.setTint(0xffffff);
+    this.time.delayedCall(100, () => {
+      if (playerEntity.active) playerEntity.clearTint();
+    });
+
+    // Check for death
+    if (state.isDead()) {
+      this.handlePlayerDeath(state.id);
+    }
+  }
+
+  handlePlayerDeath(deadPlayerId) {
+    const winnerIndex = deadPlayerId === 1 ? 1 : 0;
+    this.gameState.winRound(winnerIndex);
+
+    // Cleanup
+    this.player1.cleanup();
+    this.player2.cleanup();
+
+    const matchWinner = this.gameState.getMatchWinner();
+    if (matchWinner !== null) {
+      this.scene.start('GameOver', {
+        winner: matchWinner + 1,
+        scores: [...this.gameState.scores],
+        bestOf: this.bestOf,
+      });
+    } else {
+      this.scene.start('RoundEnd', {
+        roundWinner: winnerIndex + 1,
+        scores: [...this.gameState.scores],
+        bestOf: this.bestOf,
+        gameState: this.gameState,
+      });
+    }
   }
 }
