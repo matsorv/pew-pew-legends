@@ -169,10 +169,17 @@ export class GameScene extends Phaser.Scene {
       bullet.destroy();
     });
 
-    // Camera follows midpoint between players
+    // Camera follows midpoint, zooms based on distance
     const midX = (this.player1.x + this.player2.x) / 2;
     const midY = (this.player1.y + this.player2.y) / 2;
     this.cameras.main.centerOn(midX, midY);
+
+    const dist = Phaser.Math.Distance.Between(
+      this.player1.x, this.player1.y,
+      this.player2.x, this.player2.y
+    );
+    const zoom = Phaser.Math.Clamp(800 / Math.max(dist, 400), 0.5, 1.2);
+    this.cameras.main.setZoom(Phaser.Math.Linear(this.cameras.main.zoom, zoom, 0.05));
 
     // Update HUD
     this.hud.update(this.gameState);

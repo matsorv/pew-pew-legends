@@ -64,18 +64,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   drawAimLine() {
     this.aimLine.clear();
     const angle = this.playerState.aimAngle;
-    const length = 60;
     const startX = this.x + this.facing * 12;
     const startY = this.y - 8;
-    const endX = startX + Math.cos(angle) * length * this.facing;
-    const endY = startY + Math.sin(angle) * length;
 
     const weapon = WEAPONS[this.playerState.currentWeapon];
-    const color = weapon.laser ? 0xff0000 : 0xffffff;
-    const alpha = weapon.laser ? 0.8 : 0.3;
 
-    this.aimLine.lineStyle(1, color, alpha);
-    this.aimLine.lineBetween(startX, startY, endX, endY);
+    if (weapon.laser) {
+      // Sniper laser — long red line
+      const length = 500;
+      const endX = startX + Math.cos(angle) * length * this.facing;
+      const endY = startY + Math.sin(angle) * length;
+      this.aimLine.lineStyle(1, 0xff0000, 0.6);
+      this.aimLine.lineBetween(startX, startY, endX, endY);
+    } else {
+      // Normal aim indicator — short white line
+      const length = 40;
+      const endX = startX + Math.cos(angle) * length * this.facing;
+      const endY = startY + Math.sin(angle) * length;
+      this.aimLine.lineStyle(1, 0xffffff, 0.3);
+      this.aimLine.lineBetween(startX, startY, endX, endY);
+    }
   }
 
   drawHealthBar() {
