@@ -7,6 +7,7 @@ import { Player } from '../entities/Player.js';
 import { KEY_LOCATION } from '../config/controls.js';
 import { Bullet } from '../entities/Bullet.js';
 import { WEAPONS } from '../config/weapons.js';
+import { HUD } from '../ui/HUD.js';
 
 const ARENA_WIDTH = 2400;
 const ARENA_HEIGHT = 600;
@@ -125,6 +126,9 @@ export class GameScene extends Phaser.Scene {
 
     // Prevent browser default for game keys
     this.input.keyboard.addCapture(['W','A','S','D','Q','E','UP','DOWN','LEFT','RIGHT','SHIFT','CTRL','COMMA','PERIOD','ENTER']);
+
+    // HUD
+    this.hud = new HUD(this);
   }
 
   update(time, delta) {
@@ -167,6 +171,9 @@ export class GameScene extends Phaser.Scene {
     const midX = (this.player1.x + this.player2.x) / 2;
     const midY = (this.player1.y + this.player2.y) / 2;
     this.cameras.main.centerOn(midX, midY);
+
+    // Update HUD
+    this.hud.update(this.gameState);
   }
 
   handleShooting(playerEntity, keys, time) {
